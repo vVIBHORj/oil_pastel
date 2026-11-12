@@ -147,6 +147,7 @@ class OilPastelPainter:
         self.canvas, self.tooth = make_paper(self.h, self.w, self.rng)
         self.height = np.zeros((self.h, self.w), np.float32)   # wax relief
         self.cover = np.zeros((self.h, self.w), np.float32)    # how covered each pixel is
+        self.patches = []
 
         self.margin = max(18, int(0.055 * max(self.h, self.w)))
         self.frame_base, self.tape_col, self.tape_a, self.origin = build_frame_base(
@@ -263,6 +264,13 @@ class OilPastelPainter:
             width = sw * self.rng.uniform(0.8, 1.2)
             pts = self.trace(x, y, length, step)
             self.paint_stroke(pts, width, color, patch, px0, py0, self.rng.uniform(0.55, 0.95))
+        self.patches.append({
+            "number": len(self.patches) + 1,
+            "x": float(cx),
+            "y": float(cy),
+            "radius": float(r),
+            "name": cfg["name"],
+        })
 
     # ---------------- patch scheduling ---------------- #
     def cells(self, cfg):
@@ -315,7 +323,7 @@ class OilPastelPainter:
                         yield cfg["name"] + " (filling gaps)", done, total
 
     # ---------------- rendering ---------------- #
-    def render(self):
+    def render(self, show_patches=False):
         hb = cv2.GaussianBlur(self.height, (0, 0), 1.0)
         gx = cv2.Sobel(hb, cv2.CV_32F, 1, 0, ksize=3)
         gy = cv2.Sobel(hb, cv2.CV_32F, 0, 1, ksize=3)
@@ -328,7 +336,24 @@ class OilPastelPainter:
         # inner edge, like paper lifting off the board
         cv2.rectangle(frame, (ox - 1, oy - 1), (ox + self.w, oy + self.h), (150, 170, 185), 1, cv2.LINE_AA)
         frame = frame * (1 - self.tape_a[..., None]) + self.tape_col * self.tape_a[..., None]
-        return np.clip(frame, 0, 255).astype(np.uint8)
+        frame = np.clip(frame, 0, 255).astype(np.uint8)
+        if show_patches:
+            frame = self.draw_patch_overlay(frame)
+        return frame
+
+    def draw_patch_overlay(self, frame):
+        """Mark every completed patch so the painting process is easy to follow."""
+        overlay = frame.copy()
+        ox, oy = self.origin
+        colors = ((70, 195, 255), (90, 225, 125), (255, 170, 70))
+        for patch in self.patches:
+            center = (int(ox + patch["x"]), int(oy + patch["y"]))
+            radius = max(4, int(patch["radius"]))
+            color = colors[(patch["number"] - 1) % len(colors)]
+            cv2.circle(overlay, center, radius, color, 2, cv2.LINE_AA)
+            cv2.putText(overlay, str(patch["number"]), (center[0] - 4, center[1] + 4),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.38, color, 1, cv2.LINE_AA)
+        return overlay
 
 
 # --------------------------------------------------------------------------- #
@@ -455,6 +480,14 @@ def main():
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--no-window", action="store_true", help="headless mode: do NOT open the live window")
     args = ap.parse_args()
+    if args.size < 32:
+        ap.error("--size must be at least 32 pixels")
+    if args.speed < 1:
+        ap.error("--speed must be at least 1")
+    if args.density <= 0:
+        ap.error("--density must be greater than 0")
+    if args.fps < 1:
+        ap.error("--fps must be at least 1")
 
     img = load_image(args.image, args.size)
     out_path = args.out or os.path.splitext(args.image)[0] + "_oilpastel.png"
@@ -479,6 +512,8 @@ def main():
     if args.video:
         fh, fw = painter.frame_base.shape[:2]
         writer = cv2.VideoWriter(args.video, cv2.VideoWriter_fourcc(*"mp4v"), args.fps, (fw, fh))
+        if not writer.isOpened():
+            raise RuntimeError(f"Could not open video output: {args.video}")
 
     paused, quit_now, last_name = False, False, ""
     count = 0
@@ -490,14 +525,15 @@ def main():
         if count % args.speed == 0:
             pct = min(100, int(100 * done / max(total, 1)))
             if win or writer:
-                frame = painter.render()
+                frame = painter.render(show_patches=True)
                 if writer:
                     writer.write(frame)
                 if win:
                     win.show(with_progress(frame, f"{name}   {pct}%   [Space pause | S snapshot | Q quit]"))
                     key = win.poll(1)
                     if key == "s":
-                        cv2.imwrite(out_path.replace(".png", f"_snap{done}.png"), frame)
+                        stem, _ = os.path.splitext(out_path)
+                        cv2.imwrite(f"{stem}_snap{done}.png", frame)
                     elif key == "space":
                         paused = True
                     elif key in ("q", "escape"):
@@ -517,15 +553,18 @@ def main():
     print()
     final = painter.render()
     cv2.imwrite(out_path, final)
-    art_only = out_path.replace(".png", "_artwork_only.png")
+    stem, _ = os.path.splitext(out_path)
+    art_only = f"{stem}_artwork_only.png"
+    patch_map = f"{stem}_patches.png"
     ox, oy = painter.origin
     cv2.imwrite(art_only, final[oy:oy + painter.h, ox:ox + painter.w])
+    cv2.imwrite(patch_map, painter.render(show_patches=True))
     if writer:
         for _ in range(args.fps * 2):
             writer.write(final)
         writer.release()
         print(f"Time-lapse saved: {args.video}")
-    print(f"Saved: {out_path}\nSaved: {art_only}")
+    print(f"Saved: {out_path}\nSaved: {art_only}\nSaved patch map: {patch_map}")
 
     if win:
         if not quit_now:

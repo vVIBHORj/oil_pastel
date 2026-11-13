@@ -41,8 +41,13 @@
           <span class="drop-help">or choose an image from your computer</span>
           <span class="drop-file" id="drop-file">JPG, PNG, or WEBP</span>
         </label>
+        <div class="workspace-actions">
+          <button class="generate-button" id="generate-button" type="button" disabled>Generate painting</button>
+          <button class="save-button" id="save-button" type="button" disabled>Save artwork</button>
+        </div>
         <div class="preview-shell is-empty" id="preview-shell">
           <img id="photo-preview" alt="Selected photo preview" />
+          <canvas id="painting-canvas" aria-label="Generated oil pastel painting"></canvas>
           <div class="preview-empty">The patch map will appear here.</div>
           <div class="patches" aria-hidden="true">
             <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
@@ -96,7 +101,7 @@
       <section class="export" id="export" aria-labelledby="export-title">
         <div>
           <h2 id="export-title">Ready when<br />you are.</h2>
-          <p>Choose your photo, then run the exact command below in the project folder.</p>
+          <p>For a local browser preview, use Generate above. The original CLI command remains available for full-resolution output.</p>
         </div>
         <div class="command-card" data-ui>
           <code id="command">python oil_pastel_patches.py photo.jpg --video timelapse.mp4 --speed 4</code>

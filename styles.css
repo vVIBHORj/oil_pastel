@@ -64,10 +64,23 @@ p { max-width: 35rem; }
 .drop-help, .drop-file { color: var(--muted); font-size: var(--small); }
 .drop-help { margin-top: 0.45rem; }
 .drop-file { margin-top: 2rem; }
+.workspace-actions { grid-column: 2; display: flex; gap: 1rem; align-items: center; }
+.generate-button, .save-button {
+  border: 0; border-radius: 1rem 1rem 1rem 0; cursor: pointer; font: inherit; padding: 0.85rem 1.25rem;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+.generate-button { background: var(--ink); color: var(--accent-ink); }
+.save-button { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+.generate-button:hover:not(:disabled), .save-button:hover:not(:disabled) { transform: translateY(-0.2rem); }
+.generate-button:disabled, .save-button:disabled { cursor: not-allowed; opacity: 0.45; }
 .preview-shell { grid-column: 2; min-height: 20rem; margin-top: -1rem; position: relative; overflow: hidden; background: var(--ink); display: grid; place-items: center; clip-path: polygon(0 0, 100% 0, 100% 88%, 91% 100%, 0 100%); }
 .preview-shell img { width: 100%; height: 100%; min-height: 20rem; object-fit: cover; display: block; filter: saturate(0.75) contrast(1.05); }
+.preview-shell canvas { width: 100%; height: 100%; min-height: 20rem; object-fit: cover; display: none; }
+.preview-shell.is-generating img, .preview-shell.is-complete img { display: none; }
+.preview-shell.is-generating canvas, .preview-shell.is-complete canvas { display: block; }
 .preview-shell.is-empty { min-height: 12rem; }
 .preview-shell.is-empty img { display: none; }
+.preview-shell:not(.is-empty) .preview-empty { display: none; }
 .preview-empty { color: var(--accent-ink); font-size: var(--small); }
 .patches { display: none; position: absolute; inset: 0; pointer-events: none; }
 .preview-shell:not(.is-empty) .patches { display: block; }
@@ -119,6 +132,7 @@ code { display: block; font-size: var(--small); overflow-wrap: anywhere; }
   .hero-copy p { margin-top: 1.5rem; }
   .hero-motif { width: 130vw; height: 130vw; right: -15vw; top: 56svh; }
   .workspace, .export { display: flex; flex-direction: column; gap: 2rem; padding-top: 6rem; padding-bottom: 6rem; }
+  .workspace-actions { display: flex; flex-wrap: wrap; }
   .material { display: flex; flex-direction: column; gap: 2rem; padding-top: 6rem; padding-bottom: 6rem; }
   .material-gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 12rem 12rem 12rem; }
   .gallery-large { grid-row: 1 / 3; }

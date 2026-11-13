@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Oil Pastel Patch Painter turns a photo into inspectable patch-by-patch artwork." />
+    <title>Oil Pastel Patch Painter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Oil Pastel Patch Painter home">oil pastel</a>
+      <nav aria-label="Primary navigation">
+        <a href="#process">Process</a>
+        <a href="#export">Export</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <h1 id="page-title">Paint in<br />patches.</h1>
+          <p>Drop a photograph into the renderer and watch broad colour, mid-tone texture, and detail arrive in order.</p>
+          <a class="motif-button" href="#workspace">Start with a photo</a>
+        </div>
+        <div class="hero-motif" aria-hidden="true"></div>
+      </section>
+
+      <section class="workspace" id="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-heading">
+          <h2 id="workspace-title">Your next painting</h2>
+          <p id="file-status" role="status">No photo selected yet.</p>
+        </div>
+        <label class="drop-zone" id="drop-zone" for="photo-input" tabindex="0">
+          <input id="photo-input" type="file" accept="image/*" />
+          <span class="drop-mark" aria-hidden="true"></span>
+          <span class="drop-title">Drop a photo here</span>
+          <span class="drop-help">or choose an image from your computer</span>
+          <span class="drop-file" id="drop-file">JPG, PNG, or WEBP</span>
+        </label>
+        <div class="preview-shell is-empty" id="preview-shell">
+          <img id="photo-preview" alt="Selected photo preview" />
+          <div class="preview-empty">The patch map will appear here.</div>
+          <div class="patches" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+      </section>
+
+      <section class="material" aria-labelledby="material-title">
+        <div class="material-copy">
+          <h2 id="material-title">The medium<br />stays visible.</h2>
+          <p>These public-domain pastel studies and a short oil study show the texture this renderer is reaching for. They are references, not pretend output.</p>
+        </div>
+        <div class="material-gallery">
+          <figure class="gallery-large">
+            <img src="assets/the-milliner.jpg" width="1834" height="2250" alt="Pastel portrait of a woman in a blue dress seated beside hats" loading="lazy" decoding="async" />
+          </figure>
+          <figure>
+            <img src="assets/apparition.jpg" width="1568" height="2000" alt="Abstract pastel apparition in blue, pink, and black" loading="lazy" decoding="async" />
+          </figure>
+          <figure>
+            <img src="assets/the-two-sisters.jpg" width="1553" height="1935" alt="Pastel portrait of two women seated together" loading="lazy" decoding="async" />
+          </figure>
+          <figure class="gallery-video">
+            <video autoplay muted loop playsinline preload="metadata" poster="assets/action-of-soap-on-oil-poster.jpg" width="854" height="480" aria-label="Oil moving across water">
+              <source src="assets/action-of-soap-on-oil.webm" type="video/webm" />
+            </video>
+          </figure>
+          <figure>
+            <img src="assets/woman-on-a-sofa.jpg" width="1684" height="1925" alt="Woman resting on a sofa in a muted pastel interior" loading="lazy" decoding="async" />
+          </figure>
+        </div>
+      </section>
+
+      <section class="process" id="process" aria-labelledby="process-title">
+        <div class="process-copy">
+          <h2 id="process-title">Build the image<br />in visible passes.</h2>
+          <p>Move through the same order as the command line renderer. The preview is a clear record of what has been painted.</p>
+        </div>
+        <div class="process-ui" data-ui>
+          <div class="stage-preview" id="stage-preview">
+            <span class="stage-word" id="stage-word">Broad colour</span>
+            <span class="stage-count" id="stage-count">1 / 4</span>
+          </div>
+          <label class="stage-control" for="stage-range">
+            <input id="stage-range" type="range" min="0" max="3" value="0" />
+            <span><span>Broad colour</span><span>Mid-tone texture</span><span>Edges</span><span>Framed output</span></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="export" id="export" aria-labelledby="export-title">
+        <div>
+          <h2 id="export-title">Ready when<br />you are.</h2>
+          <p>Choose your photo, then run the exact command below in the project folder.</p>
+        </div>
+        <div class="command-card" data-ui>
+          <code id="command">python oil_pastel_patches.py photo.jpg --video timelapse.mp4 --speed 4</code>
+          <button class="copy-button" id="copy-command" type="button">Copy command</button>
+          <span class="copy-status" id="copy-status" role="status"></span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-mark" aria-label="Oil Pastel">oil<br />pastel</div>
+      <div class="footer-links">
+        <a href="#workspace">New painting</a>
+        <a href="#process">How it works</a>
+        <a href="README.md">Read the guide</a>
+      </div>
+      <p class="footer-note">Local first. Inspectable by design.</p>
+      <p class="credits">Reference images: <a href="https://www.artic.edu/artworks/39068">The Milliner</a> by Eva Gonzalès, CC0, via the Art Institute of Chicago; <a href="https://commons.wikimedia.org/wiki/File:Redon,_Odilon,_Apparition,_1905-10.jpg">Apparition</a> by Odilon Redon, public domain, via Wikimedia Commons; <a href="https://www.metmuseum.org/art/collection/search/437596">The Two Sisters</a> and <a href="https://www.metmuseum.org/art/collection/search/436125">Woman on a Sofa</a>, public domain, via The Metropolitan Museum of Art. Video: <a href="https://commons.wikimedia.org/wiki/File:Action_of_soap_on_oil.ogv">Action of soap on oil</a> by M0tty, CC BY-SA 3.0, via Wikimedia Commons.</p>
+    </footer>
+    <script src="app.js"></script>
+  </body>
+</html>
